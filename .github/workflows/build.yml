@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [main, tuist-4.147.0]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
+      - name: Install Tuist
+        run: brew install --formula tuist
+
+      - name: Tuist install
+        run: tuist install
+
+      - name: Tuist generate
+        run: tuist generate --no-open
+
+      - name: Build for simulator
+        run: |
+          xcodebuild build \
+            -workspace XcframeworkRepro.xcworkspace \
+            -scheme XcframeworkRepro \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
