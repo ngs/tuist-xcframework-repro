@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches: [main, tuist-4.147.0]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XCODE_PATH" ]; then
+            echo "Available Xcode versions:"
+            ls -la /Applications | grep Xcode
+            echo "Error: Xcode 26.x not found"
+            exit 1
+          fi
+          echo "Using $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+
+      - name: Install Tuist 4.155.0
+        run: |
+          brew tap tuist/tuist
+          brew install --formula tuist@4.155.0
+
+      - name: Tuist install
+        run: tuist install
+
+      - name: Tuist cache
+        run: tuist cache --external-only
+
+      - name: Tuist generate
+        run: tuist generate --no-open
+
+      - name: Build for simulator
+        run: |
+          xcodebuild build \
+            -workspace XcframeworkRepro.xcworkspace \
+            -scheme XcframeworkRepro \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
