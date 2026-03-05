@@ -30,7 +30,16 @@ jobs:
           git clone --depth 1 --branch fix/9723-reproduce-xcframework-slice-selection-bug-fix \
             https://github.com/ngs/tuist.git /tmp/tuist
           cd /tmp/tuist
-          sudo xcode-select -s "/Applications/Xcode_$(cat .xcode-version).app"
+          echo "Available Xcode versions:"
+          ls -d /Applications/Xcode*.app
+          echo "Desired: Xcode_$(cat .xcode-version).app"
+          XCODE_APP="/Applications/Xcode_$(cat .xcode-version).app"
+          if [ ! -d "$XCODE_APP" ]; then
+            echo "Falling back to latest Xcode"
+            XCODE_APP=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          fi
+          sudo xcode-select -s "$XCODE_APP"
+          swift --version
           swift build -c release --product tuist --replace-scm-with-registry
           sudo cp .build/release/tuist /usr/local/bin/tuist
 
