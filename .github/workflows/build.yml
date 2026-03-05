@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [main, tuist-4.147.0]
+    branches: [main, tuist-4.147.0, fix/9723-patched-tuist]
   pull_request:
     branches: [main]
 
@@ -25,10 +25,13 @@ jobs:
           echo "Using $XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH"
 
-      - name: Install Tuist 4.147.0
+      - name: Build patched Tuist from ngs/tuist
         run: |
-          brew tap tuist/tuist
-          brew install --formula tuist@4.147.0
+          git clone --depth 1 --branch fix/9723-reproduce-xcframework-slice-selection-bug-fix \
+            https://github.com/ngs/tuist.git /tmp/tuist
+          cd /tmp/tuist
+          swift build -c release --product tuist --replace-scm-with-registry
+          sudo cp .build/release/tuist /usr/local/bin/tuist
 
       - name: Tuist install
         run: tuist install
