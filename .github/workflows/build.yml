@@ -25,10 +25,10 @@ jobs:
           echo "Using $XCODE_PATH"
           sudo xcode-select -s "$XCODE_PATH"
 
-      - name: Install Tuist 4.155.0
+      - name: Install Tuist 4.147.0
         run: |
           brew tap tuist/tuist
-          brew install --formula tuist@4.155.0
+          brew install --formula tuist@4.147.0
 
       - name: Tuist install
         run: tuist install
