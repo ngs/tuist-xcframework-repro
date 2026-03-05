@@ -32,12 +32,8 @@ jobs:
           cd /tmp/tuist
           echo "Available Xcode versions:"
           ls -d /Applications/Xcode*.app
-          echo "Desired: Xcode_$(cat .xcode-version).app"
-          XCODE_APP="/Applications/Xcode_$(cat .xcode-version).app"
-          if [ ! -d "$XCODE_APP" ]; then
-            echo "Falling back to latest Xcode"
-            XCODE_APP=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
-          fi
+          XCODE_APP=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
+          echo "Selected: $XCODE_APP"
           sudo xcode-select -s "$XCODE_APP"
           swift --version
           swift build -c release --product tuist --replace-scm-with-registry
